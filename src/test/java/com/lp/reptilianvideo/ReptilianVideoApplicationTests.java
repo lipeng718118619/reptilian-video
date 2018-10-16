@@ -1,5 +1,8 @@
 package com.lp.reptilianvideo;
 
+import com.lp.reptilianvideo.service.DownLoadVideoService;
+import com.lp.reptilianvideo.service.ExtractPageUrlService;
+import com.lp.reptilianvideo.service.ReptilianVideoService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +13,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.BufferedOutputStream;
@@ -26,7 +28,14 @@ public class ReptilianVideoApplicationTests {
 	private RestTemplate restTemplate;
 
 	@Autowired
+	private ReptilianVideoService reptilianVideoService;
+
+	@Autowired
 	private ExtractPageUrlService extractPageUrlService;
+
+
+	@Autowired
+	private DownLoadVideoService downLoadVideoService;
 
 	@Test
 	public void contextLoads() {
@@ -41,7 +50,7 @@ public class ReptilianVideoApplicationTests {
 
 		InputStream inputStream =resource.getInputStream();
 
-		BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream("D://test.mp4"));
+		BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream("D://EnumState.mp4"));
 
 
 		//读取数据
@@ -60,26 +69,23 @@ public class ReptilianVideoApplicationTests {
 		outputStream.close();
 	}
 
-
 	@Test
 	public void tes2t() throws IOException
 	{
-		HttpHeaders httpHeaders = new HttpHeaders();
-		httpHeaders.set("user-agent","Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Mobile Safari/537.36");
-
-
-		HttpEntity httpEntity = new HttpEntity(httpHeaders);
-
-		ResponseEntity<String> uu= restTemplate.exchange("https://www.xiaoyia1.xyz/ixx/toupaizipai/index.html",
-				HttpMethod.GET, httpEntity,String.class);
-
-		int i=0;
+		extractPageUrlService.analysisVideoUrl("https://www.xiaoyia1.xyz/ixx/toupaizipai/index.html");
 	}
 
 	@Test
-	public void test3()
+	public void testt()
 	{
-		extractPageUrlService.searchMainIndex("https://www.xiaoyia1.xyz/ixx/toupaizipai/index.html");
+		reptilianVideoService.reptilianVideo("https://www.xiaoyia1.xyz/ixx/toupaizipai/index.html");
+	}
+
+
+	@Test
+	public void test2()
+	{
+		downLoadVideoService.downLoadFile("http://py.xhsyun.xyz/001/archives3651/index.m3u8","/Users/honddy/Documents/test.mp4");
 	}
 
 
