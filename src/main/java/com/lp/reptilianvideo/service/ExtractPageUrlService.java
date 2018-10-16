@@ -7,4 +7,6 @@ import java.util.List;
 public interface ExtractPageUrlService
 {
     List<VideoEntity> analysisVideoUrl(String indexUrl);
+
+    String analysisNextIndexUrl(String url);
 }

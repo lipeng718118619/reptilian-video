@@ -2,22 +2,22 @@ spring:
   application:
     name: reptilian-video
   datasource:
-    url: jdbc:mysql://10.211.55.3:3306/reptilian-video?useUnicode=true&characterEncoding=utf8&autoReconnect=true&rewriteBatchedStatements=TRUE&useSSL=false
+    url: jdbc:mysql://localhost:3306/reptilian_video?useUnicode=true&characterEncoding=utf8&autoReconnect=true&rewriteBatchedStatements=TRUE&useSSL=false
     username: root
     password: root
     hikari:
       maximum-pool-size: 20
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: create
   rabbitmq:
     host: localhost
     port: 5672
-    username: admin
-    password: secret
+    username: root
+    password: root
 logging:
   config: classpath:logback-spring.xml
   file: ${spring.application.name}
-  path: /Users/honddy/code/log
+  path: D:\log
 
 

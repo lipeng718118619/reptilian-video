@@ -1,5 +1,7 @@
 package com.lp.reptilianvideo.config;
 
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestFactory;
@@ -19,6 +21,12 @@ public class RestTemplateConfig
         restTemplate.getMessageConverters().set(1, new StringHttpMessageConverter(StandardCharsets.UTF_8));
         return restTemplate;
 
+    }
+
+    @Bean
+    public MessageConverter getMessageConverter()
+    {
+        return new Jackson2JsonMessageConverter();
     }
 
     @Bean

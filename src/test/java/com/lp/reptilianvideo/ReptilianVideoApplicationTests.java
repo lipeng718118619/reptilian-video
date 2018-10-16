@@ -1,10 +1,17 @@
 package com.lp.reptilianvideo;
 
+import com.lp.reptilianvideo.config.RabbitMQConfig;
+import com.lp.reptilianvideo.entity.VideoEntity;
 import com.lp.reptilianvideo.service.DownLoadVideoService;
 import com.lp.reptilianvideo.service.ExtractPageUrlService;
 import com.lp.reptilianvideo.service.ReptilianVideoService;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.Resource;
@@ -37,12 +44,15 @@ public class ReptilianVideoApplicationTests {
 	@Autowired
 	private DownLoadVideoService downLoadVideoService;
 
+	@Autowired
+	private RabbitTemplate rabbitTemplate;
+
 	@Test
 	public void contextLoads() {
 	}
 
 
-	@Test
+	//@Test
 	public void test() throws IOException
 	{
 		Resource resource = restTemplate
@@ -69,25 +79,31 @@ public class ReptilianVideoApplicationTests {
 		outputStream.close();
 	}
 
-	@Test
+	//@Test
 	public void tes2t() throws IOException
 	{
 		extractPageUrlService.analysisVideoUrl("https://www.xiaoyia1.xyz/ixx/toupaizipai/index.html");
 	}
 
-	@Test
+	//@Test
 	public void testt()
 	{
 		reptilianVideoService.reptilianVideo("https://www.xiaoyia1.xyz/ixx/toupaizipai/index.html");
 	}
 
 
-	@Test
+	//@Test
 	public void test2()
 	{
 		downLoadVideoService.downLoadFile("http://py.xhsyun.xyz/001/archives3651/index.m3u8","/Users/honddy/Documents/test.mp4");
 	}
 
-
+	//@Test
+	public void testRabbitMq()
+	{
+		VideoEntity videoEntity=new VideoEntity("标题");
+		videoEntity.setIndexUrl("test");
+		rabbitTemplate.convertAndSend(RabbitMQConfig.TOPIC,videoEntity);
+	}
 
 }
