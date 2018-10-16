@@ -24,7 +24,7 @@ public class MessageListenerAdapter implements ChannelAwareMessageListener
     private ReptilianVideoDao reptilianVideoDao;
 
 
-    private final String diskPath="J:\\";
+    private final String diskPath="J:\\data\\";
 
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
