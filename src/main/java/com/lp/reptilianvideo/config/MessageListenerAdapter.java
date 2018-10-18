@@ -12,6 +12,9 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.core.ChannelAwareMessageListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+
+import java.io.IOException;
 
 @Component
 public class MessageListenerAdapter implements ChannelAwareMessageListener
@@ -40,8 +43,9 @@ public class MessageListenerAdapter implements ChannelAwareMessageListener
             String data = new String(message.getBody(),"UTF-8");
 
             videoEntity = JSONObject.parseObject(data,VideoEntity.class);
-            if(videoEntity == null)
+            if(videoEntity == null || StringUtils.isEmpty(videoEntity.getUrl()))
             {
+                channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
                 return;
             }
 
@@ -51,6 +55,8 @@ public class MessageListenerAdapter implements ChannelAwareMessageListener
             downLoadVideoService.downLoadFile(videoEntity.getUrl().replace("https","http"),diskPath+videoEntity.getTitle()+".mp4");
             videoEntity.setState(EnumState.SUCCESS.toString());
             reptilianVideoDao.saveAndFlush(videoEntity);
+
+
         }
         catch(Exception e)
         {
@@ -66,7 +72,7 @@ public class MessageListenerAdapter implements ChannelAwareMessageListener
             }
             catch (IOException e1)
             {
-                e1.printStackTrace();
+                logger.error(e1.getMessage(),e1);
             }
 
         }

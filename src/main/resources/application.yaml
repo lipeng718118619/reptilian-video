@@ -16,6 +16,7 @@ spring:
     username: root
     password: root
 
+
 logging:
   config: classpath:logback-spring.xml
   file: ${spring.application.name}

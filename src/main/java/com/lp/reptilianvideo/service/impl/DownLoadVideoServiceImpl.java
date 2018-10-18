@@ -14,9 +14,11 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -47,15 +49,44 @@ public class DownLoadVideoServiceImpl implements DownLoadVideoService
     {
         try
         {
-           List<String> fileStreamUrls = getFileStreamList(url);
-           downLoadFiles(fileStreamUrls, diskFilePath);
+            if (StringUtils.isEmpty(url))
+            {
+                return;
+            }
+            if (url.contains(".mp4"))
+            {
+                downLoadOneFile(url,diskFilePath);
+            } else
+            {
+                List<String> fileStreamUrls = getFileStreamList(url);
+                downLoadFiles(fileStreamUrls, diskFilePath);
+            }
+
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             logger.error(e.getMessage(), e);
-            VideoEntity entity = reptilianVideoDao.queryByUrl(url.replaceFirst("http","https"));
-            entity.setState(EnumState.FAILED.toString());
-            reptilianVideoDao.saveAndFlush(entity);
+            List<VideoEntity> entitys = reptilianVideoDao.queryByUrl(url.replaceFirst("http", "https"));
+
+            if(!CollectionUtils.isEmpty(entitys))
+            {
+                entitys.get(0).setState(EnumState.FAILED.toString());
+                reptilianVideoDao.saveAndFlush(entitys.get(0));
+            }
+        }
+    }
+
+
+    private void downLoadOneFile(String url, String diskFilePath) throws Exception
+    {
+        logger.info("download url :{}",url);
+        try (BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(diskFilePath)))
+        {
+            write2Disk(url, outputStream);
+        }
+        catch (Exception e)
+        {
+            throw e;
         }
     }
 
@@ -65,33 +96,33 @@ public class DownLoadVideoServiceImpl implements DownLoadVideoService
      */
     private void downLoadFiles(List<String> fileStreamUrls, String diskFilePath) throws Exception
     {
-        if(CollectionUtils.isEmpty(fileStreamUrls))
+        if (CollectionUtils.isEmpty(fileStreamUrls))
         {
             return;
         }
 
         File file = new File(diskFilePath);
 
-        if(file.exists())
+        if (file.exists())
         {
             file.delete();
         }
 
-        try(BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(file)))
+        try (BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(file)))
         {
 
             int index = 0;
-            for(String url : fileStreamUrls)
+            for (String url : fileStreamUrls)
             {
-                if(index % 10 ==0)
+                if (index % 10 == 0)
                 {
                     logger.info("download url: {} , index: {} , size: {}", url, index++, fileStreamUrls.size());
                 }
-                writeSteam2File(url, outputStream);
+                write2Disk(url, outputStream);
             }
 
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             throw e;
         }
@@ -105,17 +136,17 @@ public class DownLoadVideoServiceImpl implements DownLoadVideoService
      * @param outputStream
      * @throws IOException
      */
-    private void writeSteam2File(String fileStreamUrl, BufferedOutputStream outputStream) throws Exception
+    private void write2Disk(String fileStreamUrl, BufferedOutputStream outputStream) throws Exception
     {
         ResponseEntity<Resource> responseEntity = restTemplate.exchange(fileStreamUrl, HttpMethod.GET, httpEntity, Resource.class);
 
-        if(!responseEntity.getStatusCode().is2xxSuccessful())
+        if (!responseEntity.getStatusCode().is2xxSuccessful())
         {
             throw new Exception("call download url : " + fileStreamUrl + "error!");
 
         }
 
-        try(InputStream inputStream = responseEntity.getBody().getInputStream())
+        try (InputStream inputStream = responseEntity.getBody().getInputStream())
         {
             //读取数据
             //一次性取多少字节
@@ -123,7 +154,7 @@ public class DownLoadVideoServiceImpl implements DownLoadVideoService
             //接受读取的内容(n就代表的相关数据，只不过是数字的形式)
             int n = -1;
             //循环取出数据
-            while((n = inputStream.read(bytes, 0, bytes.length)) != -1)
+            while ((n = inputStream.read(bytes, 0, bytes.length)) != -1)
             {
                 //写入相关文件
                 outputStream.write(bytes, 0, n);
@@ -132,7 +163,7 @@ public class DownLoadVideoServiceImpl implements DownLoadVideoService
             outputStream.flush();
 
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             throw new Exception("download url: " + fileStreamUrl + "error!", e);
         }
@@ -150,7 +181,7 @@ public class DownLoadVideoServiceImpl implements DownLoadVideoService
 
         ResponseEntity<String> resourceResponseEntity = restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class);
 
-        if(!resourceResponseEntity.getStatusCode().is2xxSuccessful())
+        if (!resourceResponseEntity.getStatusCode().is2xxSuccessful())
         {
             throw new Exception("get down load list error,url : " + url);
         }
@@ -161,14 +192,14 @@ public class DownLoadVideoServiceImpl implements DownLoadVideoService
 
         List<String> result = new LinkedList<>();
 
-        if(steams == null)
+        if (steams == null)
         {
             return result;
         }
 
-        for(String steam : steams)
+        for (String steam : steams)
         {
-            if(steam.startsWith("https:"))
+            if (steam.startsWith("https:"))
             {
                 result.add(steam.replaceFirst("https", "http"));
             }
