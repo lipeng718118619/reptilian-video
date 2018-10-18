@@ -1,5 +1,7 @@
 package com.lp.reptilianvideo.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
@@ -19,30 +21,37 @@ public class RabbitMQConfig
 
     public static final String TOPIC = "reptilian-video";
 
+    private Logger logger = LoggerFactory.getLogger(getClass());
+
     @Bean
-    Queue queue() {
+    Queue queue()
+    {
         return new Queue(queueName, true);
     }
 
     @Bean
-    TopicExchange exchange() {
+    TopicExchange exchange()
+    {
         return new TopicExchange(topicExchangeName);
     }
 
     @Bean
-    Binding binding(Queue queue, TopicExchange exchange) {
+    Binding binding(Queue queue, TopicExchange exchange)
+    {
         return BindingBuilder.bind(queue).to(exchange).with(TOPIC);
     }
 
     @Bean
-    SimpleMessageListenerContainer container(ConnectionFactory connectionFactory,
-            MessageListenerAdapter listenerAdapter) {
+    SimpleMessageListenerContainer container(ConnectionFactory connectionFactory, MessageListenerAdapter listenerAdapter)
+    {
 
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
         container.setQueueNames(queueName);
         container.setMessageListener(listenerAdapter);
         container.setConcurrentConsumers(5);
+        container.setErrorHandler(e -> logger.error(e.getMessage(), e));
+
         return container;
     }
 }
