@@ -76,7 +76,10 @@ public class DownLoadVideoServiceImpl implements DownLoadVideoService
             int index = 0;
             for(String url : fileStreamUrls)
             {
-                logger.info("download url: {} , index: {} , size: {}", url, index++, fileStreamUrls.size());
+                if(index % 10 ==0)
+                {
+                    logger.info("download url: {} , index: {} , size: {}", url, index++, fileStreamUrls.size());
+                }
                 writeSteam2File(url, outputStream);
             }
 

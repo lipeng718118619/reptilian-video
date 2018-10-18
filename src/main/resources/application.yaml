@@ -15,6 +15,7 @@ spring:
     port: 5672
     username: root
     password: root
+
 logging:
   config: classpath:logback-spring.xml
   file: ${spring.application.name}
