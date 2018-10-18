@@ -9,12 +9,9 @@ import com.rabbitmq.client.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.MessageListener;
 import org.springframework.amqp.rabbit.core.ChannelAwareMessageListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
 
 @Component
 public class MessageListenerAdapter implements ChannelAwareMessageListener
@@ -38,6 +35,8 @@ public class MessageListenerAdapter implements ChannelAwareMessageListener
         try
         {
 
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+
             String data = new String(message.getBody(),"UTF-8");
 
             videoEntity = JSONObject.parseObject(data,VideoEntity.class);
@@ -48,13 +47,10 @@ public class MessageListenerAdapter implements ChannelAwareMessageListener
 
             videoEntity.setState(EnumState.DOWNLOAD.toString());
             reptilianVideoDao.saveAndFlush(videoEntity);
+
             downLoadVideoService.downLoadFile(videoEntity.getUrl().replace("https","http"),diskPath+videoEntity.getTitle()+".mp4");
             videoEntity.setState(EnumState.SUCCESS.toString());
             reptilianVideoDao.saveAndFlush(videoEntity);
-
-            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
-
-
         }
         catch(Exception e)
         {
