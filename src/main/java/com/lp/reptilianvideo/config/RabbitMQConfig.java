@@ -1,9 +1,6 @@
 package com.lp.reptilianvideo.config;
 
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.core.TopicExchange;
+import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.context.annotation.Bean;
@@ -39,8 +36,12 @@ public class RabbitMQConfig
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
         container.setQueueNames(queueName);
+        container.setAcknowledgeMode(AcknowledgeMode.MANUAL);
         container.setMessageListener(listenerAdapter);
-        container.setConcurrentConsumers(5);
+        container.setConcurrentConsumers(3);
+        container.setMaxConcurrentConsumers(5);
+        container.setPrefetchCount(1);
+        container.setAutoStartup(true);
         return container;
     }
 }

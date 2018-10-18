@@ -67,11 +67,11 @@ public class ExtractPageUrlServiceImpl implements ExtractPageUrlService
 
                 logger.info("video title {}, href {}, imgUrl {}",title,hrefUrl,imgUrl);
 
-                Thread.sleep(3000);
+                Thread.sleep(1000);
 
                 String url = getRealDownLoadUrl(hrefUrl);
 
-                Thread.sleep(2000);
+                Thread.sleep(1000);
 
                 VideoEntity videoEntity = new VideoEntity(title);
 

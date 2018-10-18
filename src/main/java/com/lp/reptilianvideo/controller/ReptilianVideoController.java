@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.logging.Logger;
+
 @RestController
 public class ReptilianVideoController
 {
@@ -25,7 +27,15 @@ public class ReptilianVideoController
         @Override
         public void run()
         {
-            reptilianVideoService.reptilianVideo("https://www.xiaoyia1.xyz/ixx/toupaizipai/index.html");
+            try
+            {
+                reptilianVideoService.reptilianVideo("https://www.xiaoyia1.xyz/ixx/toupaizipai/index229.html");
+
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
         }
     }
 

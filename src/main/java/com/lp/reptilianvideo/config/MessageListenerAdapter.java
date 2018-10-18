@@ -14,6 +14,8 @@ import org.springframework.amqp.rabbit.core.ChannelAwareMessageListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+
 @Component
 public class MessageListenerAdapter implements ChannelAwareMessageListener
 {
@@ -34,7 +36,7 @@ public class MessageListenerAdapter implements ChannelAwareMessageListener
     {
         VideoEntity videoEntity= null;
         try
-        {            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+        {
 
             String data = new String(message.getBody(),"UTF-8");
 
@@ -43,11 +45,15 @@ public class MessageListenerAdapter implements ChannelAwareMessageListener
             {
                 return;
             }
+
+            videoEntity.setState(EnumState.DOWNLOAD.toString());
+            reptilianVideoDao.saveAndFlush(videoEntity);
             downLoadVideoService.downLoadFile(videoEntity.getUrl().replace("https","http"),diskPath+videoEntity.getTitle()+".mp4");
             videoEntity.setState(EnumState.SUCCESS.toString());
             reptilianVideoDao.saveAndFlush(videoEntity);
 
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+
 
         }
         catch(Exception e)
@@ -58,6 +64,15 @@ public class MessageListenerAdapter implements ChannelAwareMessageListener
                 videoEntity.setState(EnumState.FAILED.toString());
                 reptilianVideoDao.saveAndFlush(videoEntity);
             }
+            try
+            {
+                channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+            }
+            catch (IOException e1)
+            {
+                e1.printStackTrace();
+            }
+
         }
     }
 }

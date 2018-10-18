@@ -70,7 +70,14 @@ public class DownLoadVideoServiceImpl implements DownLoadVideoService
             return;
         }
 
-        try(BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(diskFilePath)))
+        File file = new File(diskFilePath);
+
+        if(file.exists())
+        {
+            file.delete();
+        }
+
+        try(BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(file)))
         {
 
             int index = 0;

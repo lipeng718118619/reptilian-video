@@ -34,7 +34,8 @@ public class ReptilianVideoServiceImpl implements ReptilianVideoService
 
             if(reptilianRecordDao.existsByRootUrl(url))
             {
-                return "{\"result\":\"analysed\"}";
+                url=extractPageUrlService.analysisNextIndexUrl(url);
+                continue;
             }
             else
             {
